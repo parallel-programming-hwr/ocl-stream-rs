@@ -1,3 +1,9 @@
+/*
+ * opencl stream executor
+ * Copyright (C) 2021 trivernis
+ * See LICENSE for more information
+ */
+
 use crate::executor::context::ExecutorContext;
 use crate::executor::ocl_stream::{OCLStream, OCLStreamSender};
 use crate::utils::result::OCLStreamResult;

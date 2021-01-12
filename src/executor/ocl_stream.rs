@@ -1,3 +1,9 @@
+/*
+ * opencl stream executor
+ * Copyright (C) 2021 trivernis
+ * See LICENSE for more information
+ */
+
 use crossbeam_channel::{Receiver, Sender};
 
 use crate::utils::result::{OCLStreamError, OCLStreamResult};

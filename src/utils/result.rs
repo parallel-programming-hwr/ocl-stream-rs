@@ -1,3 +1,9 @@
+/*
+ * opencl stream executor
+ * Copyright (C) 2021 trivernis
+ * See LICENSE for more information
+ */
+
 use crossbeam_channel::RecvError;
 use std::error::Error;
 use std::fmt::{self, Display, Formatter};
