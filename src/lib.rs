@@ -5,6 +5,7 @@
  */
 
 pub mod executor;
+pub mod traits;
 pub mod utils;
 
 pub use executor::stream;
@@ -15,6 +16,7 @@ pub use ocl;
 #[cfg(test)]
 mod tests {
     use crate::executor::OCLStreamExecutor;
+    use crate::traits::*;
     use ocl::ProQue;
 
     #[test]
@@ -39,7 +41,7 @@ mod tests {
         let mut stream = stream_executor.execute_bounded(10, |ctx| {
             let pro_que = ctx.pro_que();
             let tx = ctx.sender();
-            let input_buffer = pro_que.buffer_builder().len(100).fill_val(0u32).build()?;
+            let input_buffer = vec![0u32; 100].to_ocl_buffer(pro_que)?;
 
             let kernel = pro_que
                 .kernel_builder("bench_int")

@@ -4,7 +4,7 @@ description = "OpenCL Stream execution framework"
 repository = "https://github.com/parallel-programming-hwr/ocl-stream-rs"
 license = "Apache-2.0"
 readme = "README.md"
-version = "0.2.1"
+version = "0.3.0"
 authors = ["Trivernis <trivernis@protonmail.com>"]
 edition = "2018"
 
@@ -13,6 +13,5 @@ edition = "2018"
 [dependencies]
 ocl = "0.19.3"
 num_cpus = "1.13.0"
-scheduled-thread-pool = "0.2.5"
 crossbeam-channel = "0.5.0"
 thiserror = "1.0.23"

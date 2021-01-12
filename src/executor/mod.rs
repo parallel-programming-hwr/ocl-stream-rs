@@ -8,8 +8,8 @@ use crate::executor::context::ExecutorContext;
 use crate::executor::stream::{OCLStream, OCLStreamSender};
 use crate::utils::result::OCLStreamResult;
 use ocl::ProQue;
-use scheduled_thread_pool::ScheduledThreadPool;
 use std::sync::Arc;
+use std::thread;
 
 pub mod context;
 pub mod stream;
@@ -18,7 +18,6 @@ pub mod stream;
 #[derive(Clone)]
 pub struct OCLStreamExecutor {
     pro_que: ProQue,
-    pool: Arc<ScheduledThreadPool>,
     concurrency: usize,
 }
 
@@ -33,7 +32,6 @@ impl OCLStreamExecutor {
     pub fn new(pro_que: ProQue) -> Self {
         Self {
             pro_que,
-            pool: Arc::new(ScheduledThreadPool::new(num_cpus::get())),
             concurrency: 1,
         }
     }
@@ -47,11 +45,6 @@ impl OCLStreamExecutor {
             num_tasks = num_cpus::get();
         }
         self.concurrency = num_tasks;
-    }
-
-    /// Replaces the used pool with a new one
-    pub fn set_pool(&mut self, pool: ScheduledThreadPool) {
-        self.pool = Arc::new(pool);
     }
 
     /// Executes a closure in the ocl context with a bounded channel
@@ -91,13 +84,16 @@ impl OCLStreamExecutor {
             let func = Arc::clone(&func);
             let context = self.build_context(task_id, sender.clone());
 
-            self.pool.execute(move || {
-                let sender2 = context.sender().clone();
+            thread::Builder::new()
+                .name(format!("ocl-{}", task_id))
+                .spawn(move || {
+                    let sender = context.sender().clone();
 
-                if let Err(e) = func(context) {
-                    sender2.err(e).unwrap();
-                }
-            });
+                    if let Err(e) = func(context) {
+                        sender.err(e).unwrap();
+                    }
+                })
+                .expect("Failed to spawn ocl thread");
         }
     }
 
