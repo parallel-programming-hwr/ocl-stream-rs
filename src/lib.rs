@@ -7,7 +7,7 @@
 pub mod executor;
 pub mod utils;
 
-pub use executor::ocl_stream;
+pub use executor::stream;
 pub use executor::OCLStreamExecutor;
 // reexport the ocl crate
 pub use ocl;

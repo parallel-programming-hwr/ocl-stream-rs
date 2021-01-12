@@ -32,7 +32,7 @@ fn main() {
     let stream_executor = OCLStreamExecutor::new(pro_que);
 
     // execute a closure that provides the results in the given stream
-    let mut stream = stream_executor.execute(|ctx| {
+    let mut stream = stream_executor.execute_unbound(|ctx| {
         let pro_que = ctx.pro_que();
         let tx = ctx.sender();
         let input_buffer = pro_que.buffer_builder().len(100).fill_val(0u32).build()?;

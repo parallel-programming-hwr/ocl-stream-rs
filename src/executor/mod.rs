@@ -5,14 +5,14 @@
  */
 
 use crate::executor::context::ExecutorContext;
-use crate::executor::ocl_stream::{OCLStream, OCLStreamSender};
+use crate::executor::stream::{OCLStream, OCLStreamSender};
 use crate::utils::result::OCLStreamResult;
 use ocl::ProQue;
 use scheduled_thread_pool::ScheduledThreadPool;
 use std::sync::Arc;
 
 pub mod context;
-pub mod ocl_stream;
+pub mod stream;
 
 /// Stream executor for OpenCL Programs
 #[derive(Clone)]
@@ -24,6 +24,12 @@ pub struct OCLStreamExecutor {
 
 impl OCLStreamExecutor {
     /// Creates a new OpenCL Stream executor
+    /// ```rust
+    /// use ocl::ProQue;
+    /// use ocl_stream::OCLStreamExecutor;
+    /// let pro_que = ProQue::builder().src("__kernel void bench_int() {}").build().unwrap();
+    /// let executor = OCLStreamExecutor::new(pro_que);
+    /// ```
     pub fn new(pro_que: ProQue) -> Self {
         Self {
             pro_que,
@@ -54,7 +60,7 @@ impl OCLStreamExecutor {
         F: Fn(ExecutorContext<T>) -> OCLStreamResult<()> + Send + Sync + 'static,
         T: Send + Sync + 'static,
     {
-        let (stream, sender) = ocl_stream::bounded(size);
+        let (stream, sender) = stream::bounded(size);
         self.execute(func, sender);
 
         stream
@@ -67,7 +73,7 @@ impl OCLStreamExecutor {
         F: Fn(ExecutorContext<T>) -> OCLStreamResult<()> + Send + Sync + 'static,
         T: Send + Sync + 'static,
     {
-        let (stream, sender) = ocl_stream::unbounded();
+        let (stream, sender) = stream::unbounded();
         self.execute(func, sender);
 
         stream

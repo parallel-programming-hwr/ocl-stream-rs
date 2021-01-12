@@ -4,7 +4,7 @@
  * See LICENSE for more information
  */
 
-use crate::executor::ocl_stream::OCLStreamSender;
+use crate::executor::stream::OCLStreamSender;
 use ocl::ProQue;
 
 /// Context passed to the executing closure
