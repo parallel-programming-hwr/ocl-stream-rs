@@ -43,13 +43,42 @@ impl OCLStreamExecutor {
         self.concurrency = num_tasks;
     }
 
-    /// Executes a closure in the ocl context
-    pub fn execute<F, T>(&self, func: F) -> OCLStream<T>
+    /// Replaces the used pool with a new one
+    pub fn set_pool(&mut self, pool: ScheduledThreadPool) {
+        self.pool = Arc::new(pool);
+    }
+
+    /// Executes a closure in the ocl context with a bounded channel
+    pub fn execute_bounded<F, T>(&self, size: usize, func: F) -> OCLStream<T>
     where
         F: Fn(ExecutorContext<T>) -> OCLStreamResult<()> + Send + Sync + 'static,
         T: Send + Sync + 'static,
     {
-        let (stream, sender) = ocl_stream::create();
+        let (stream, sender) = ocl_stream::bounded(size);
+        self.execute(func, sender);
+
+        stream
+    }
+
+    /// Executes a closure in the ocl context with an unbounded channel
+    /// for streaming
+    pub fn execute_unbounded<F, T>(&self, func: F) -> OCLStream<T>
+    where
+        F: Fn(ExecutorContext<T>) -> OCLStreamResult<()> + Send + Sync + 'static,
+        T: Send + Sync + 'static,
+    {
+        let (stream, sender) = ocl_stream::unbounded();
+        self.execute(func, sender);
+
+        stream
+    }
+
+    /// Executes a closure in the ocl context
+    fn execute<F, T>(&self, func: F, sender: OCLStreamSender<T>)
+    where
+        F: Fn(ExecutorContext<T>) -> OCLStreamResult<()> + Send + Sync + 'static,
+        T: Send + Sync + 'static,
+    {
         let func = Arc::new(func);
 
         for task_id in 0..(self.concurrency) {
@@ -64,8 +93,6 @@ impl OCLStreamExecutor {
                 }
             });
         }
-
-        stream
     }
 
     /// Builds the executor context for the executor

@@ -36,7 +36,7 @@ mod tests {
             .unwrap();
         let stream_executor = OCLStreamExecutor::new(pro_que);
 
-        let mut stream = stream_executor.execute(|ctx| {
+        let mut stream = stream_executor.execute_bounded(10, |ctx| {
             let pro_que = ctx.pro_que();
             let tx = ctx.sender();
             let input_buffer = pro_que.buffer_builder().len(100).fill_val(0u32).build()?;

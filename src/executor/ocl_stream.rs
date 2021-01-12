@@ -10,11 +10,24 @@ use crate::utils::result::{OCLStreamError, OCLStreamResult};
 
 /// Creates a new OCLStream with the corresponding sender
 /// to communicate between the scheduler thread and the receiver thread
-pub fn create<T>() -> (OCLStream<T>, OCLStreamSender<T>)
+pub fn unbounded<T>() -> (OCLStream<T>, OCLStreamSender<T>)
 where
     T: Send + Sync,
 {
     let (tx, rx) = crossbeam_channel::unbounded();
+    let stream = OCLStream { rx };
+    let sender = OCLStreamSender { tx };
+
+    (stream, sender)
+}
+
+/// Creates a new OCLStream with the corresponding sender and a maximum capacity
+/// to communicate between the scheduler thread and the receiver thread
+pub fn bounded<T>(size: usize) -> (OCLStream<T>, OCLStreamSender<T>)
+where
+    T: Send + Sync,
+{
+    let (tx, rx) = crossbeam_channel::bounded(size);
     let stream = OCLStream { rx };
     let sender = OCLStreamSender { tx };
 
