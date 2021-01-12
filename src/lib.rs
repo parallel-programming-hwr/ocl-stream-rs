@@ -9,12 +9,13 @@ pub mod utils;
 
 pub use executor::ocl_stream;
 pub use executor::OCLStreamExecutor;
+// reexport the ocl crate
+pub use ocl;
 
 #[cfg(test)]
 mod tests {
     use crate::executor::OCLStreamExecutor;
     use ocl::ProQue;
-    use scheduled_thread_pool::ScheduledThreadPool;
 
     #[test]
     fn it_streams_ocl_calculations() {
@@ -33,8 +34,7 @@ mod tests {
             .dims(1)
             .build()
             .unwrap();
-        let pool = ScheduledThreadPool::new(num_cpus::get());
-        let stream_executor = OCLStreamExecutor::new(pro_que, pool);
+        let stream_executor = OCLStreamExecutor::new(pro_que);
 
         let mut stream = stream_executor.execute(|ctx| {
             let pro_que = ctx.pro_que();

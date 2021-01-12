@@ -24,10 +24,10 @@ pub struct OCLStreamExecutor {
 
 impl OCLStreamExecutor {
     /// Creates a new OpenCL Stream executor
-    pub fn new(pro_que: ProQue, pool: ScheduledThreadPool) -> Self {
+    pub fn new(pro_que: ProQue) -> Self {
         Self {
             pro_que,
-            pool: Arc::new(pool),
+            pool: Arc::new(ScheduledThreadPool::new(num_cpus::get())),
             concurrency: 1,
         }
     }
