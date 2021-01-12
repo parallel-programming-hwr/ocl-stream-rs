@@ -1,0 +1,13 @@
+[package]
+name = "ocl-stream"
+version = "0.1.0"
+authors = ["Trivernis <trivernis@protonmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+ocl = "0.19.3"
+num_cpus = "1.13.0"
+scheduled-thread-pool = "0.2.5"
+crossbeam-channel = "0.5.0"
