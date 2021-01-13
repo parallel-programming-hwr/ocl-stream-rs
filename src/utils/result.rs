@@ -19,7 +19,7 @@ pub enum OCLStreamError {
     #[error("Stream Receive Error")]
     RecvError(#[from] RecvError),
 
-    #[error("Stream Send Error")]
+    #[error("Stream Send Error {0:?}")]
     SendError(#[from] Box<dyn Error + Send + Sync>),
 }
 
