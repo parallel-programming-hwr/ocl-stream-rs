@@ -17,7 +17,9 @@ pub use ocl;
 mod tests {
     use crate::executor::OCLStreamExecutor;
     use crate::traits::*;
+    use crate::utils::shared_buffer::SharedBuffer;
     use ocl::ProQue;
+    use std::ops::Deref;
 
     #[test]
     fn it_streams_ocl_calculations() {
@@ -37,16 +39,18 @@ mod tests {
             .build()
             .unwrap();
         let stream_executor = OCLStreamExecutor::new(pro_que);
+        let input_buffer: SharedBuffer<u32> = vec![0u32; 100]
+            .to_shared_buffer(stream_executor.pro_que())
+            .unwrap();
 
-        let mut stream = stream_executor.execute_bounded(10, |ctx| {
+        let mut stream = stream_executor.execute_bounded(10, move |ctx| {
             let pro_que = ctx.pro_que();
             let tx = ctx.sender();
-            let input_buffer = vec![0u32; 100].to_ocl_buffer(pro_que)?;
 
             let kernel = pro_que
                 .kernel_builder("bench_int")
                 .arg(100)
-                .arg(&input_buffer)
+                .arg(input_buffer.inner().lock().deref())
                 .global_work_size(100)
                 .build()?;
             unsafe {
@@ -54,7 +58,7 @@ mod tests {
             }
 
             let mut result = vec![0u32; 100];
-            input_buffer.read(&mut result).enq()?;
+            input_buffer.read(&mut result)?;
 
             for num in result {
                 tx.send(num)?;

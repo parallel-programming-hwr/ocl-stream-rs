@@ -5,4 +5,6 @@
  */
 
 pub mod to_ocl_buffer;
+pub mod to_shared_buffer;
 pub use to_ocl_buffer::*;
+pub use to_shared_buffer::*;

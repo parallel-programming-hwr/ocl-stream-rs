@@ -5,3 +5,4 @@
  */
 
 pub mod result;
+pub mod shared_buffer;

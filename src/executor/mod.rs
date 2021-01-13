@@ -7,7 +7,8 @@
 use crate::executor::context::ExecutorContext;
 use crate::executor::stream::{OCLStream, OCLStreamSender};
 use crate::utils::result::OCLStreamResult;
-use ocl::ProQue;
+use crate::utils::shared_buffer::SharedBuffer;
+use ocl::{OclPrm, ProQue};
 use std::sync::Arc;
 use std::thread;
 
@@ -59,6 +60,11 @@ impl OCLStreamExecutor {
         stream
     }
 
+    /// Returns the inner pro_que object
+    pub fn pro_que(&self) -> &ProQue {
+        &self.pro_que
+    }
+
     /// Executes a closure in the ocl context with an unbounded channel
     /// for streaming
     pub fn execute_unbounded<F, T>(&self, func: F) -> OCLStream<T>
@@ -95,6 +101,15 @@ impl OCLStreamExecutor {
                 })
                 .expect("Failed to spawn ocl thread");
         }
+    }
+
+    /// Creates a new shard buffer with a given length
+    pub fn create_shared_buffer<T>(&self, len: usize) -> ocl::Result<SharedBuffer<T>>
+    where
+        T: OclPrm,
+    {
+        let buffer = self.pro_que.buffer_builder().len(len).build()?;
+        Ok(SharedBuffer::new(buffer))
     }
 
     /// Builds the executor context for the executor
