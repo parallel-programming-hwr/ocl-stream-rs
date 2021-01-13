@@ -79,19 +79,15 @@ where
 
 impl<T> OCLStreamSender<T>
 where
-    T: Send + Sync,
+    T: Send + Sync + 'static,
 {
     /// Sends a value into the channel
     pub fn send(&self, value: T) -> OCLStreamResult<()> {
-        self.tx
-            .send(Ok(value))
-            .map_err(|_| OCLStreamError::SendError)
+        self.tx.send(Ok(value)).map_err(OCLStreamError::from)
     }
 
     /// Sends an error into the channel
     pub fn err(&self, err: OCLStreamError) -> OCLStreamResult<()> {
-        self.tx
-            .send(Err(err))
-            .map_err(|_| OCLStreamError::SendError)
+        self.tx.send(Err(err)).map_err(OCLStreamError::from)
     }
 }
