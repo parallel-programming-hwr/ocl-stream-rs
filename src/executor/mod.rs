@@ -96,7 +96,9 @@ impl OCLStreamExecutor {
                     let sender = context.sender().clone();
 
                     if let Err(e) = func(context) {
-                        sender.err(e).unwrap();
+                        if let Err(e) = sender.err(e) {
+                            panic!("Failed to forward error to receiver: {}", e);
+                        }
                     }
                 })
                 .expect("Failed to spawn ocl thread");
